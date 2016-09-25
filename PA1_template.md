@@ -1,22 +1,19 @@
----
-title: "Reproducible Research: Peer Assessment 1 - Sairam Praneeth"
-output: 
-  html_document:
-    keep_md: true
----
+# Reproducible Research: Peer Assessment 1 - Sairam Praneeth
 
 
 ## Loading and preprocessing the data
 
 ### Load ggplot2
 
-```{r}
+
+```r
 library(ggplot2)
 ```
 
 ### 1. Loading the data.
 
-```{r}
+
+```r
 download.file("https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2Factivity.zip",destfile = "activity.zip")
 unzip("activity.zip")
 rawdata <- read.csv("activity.csv")
@@ -24,7 +21,8 @@ rawdata <- read.csv("activity.csv")
 
 ### 2. Preprocessing the data.
 
-```{r}
+
+```r
 # Transform date in "month day-number" format
 newdate <- factor(format(as.Date(rawdata$date),"%b %d"))
 rawdata$newdate <- newdate
@@ -36,23 +34,36 @@ cleandata <- na.omit(rawdata)
 
 ### Plotting the Histogram
 
-```{r}
+
+```r
 # Total number of steps taken per day.
 total_steps_taken_per_day <- aggregate(cleandata$steps,list(cleandata$newdate),sum)
 
 hist(total_steps_taken_per_day$x,main = "Histogram for total number of steps taken per day",xlab = "total number of steps per day")
 ```
 
+![](PA1_template_files/figure-html/unnamed-chunk-4-1.png)<!-- -->
+
 ### Mean of Total steps taken per day
 
-```{r}
+
+```r
 round(mean(total_steps_taken_per_day$x))
+```
+
+```
+## [1] 10766
 ```
 
 ### Median of Total steps taken per day
 
-```{r}
+
+```r
 median(total_steps_taken_per_day$x)
+```
+
+```
+## [1] 10765
 ```
 
 ## What is the average daily activity pattern?
@@ -61,20 +72,35 @@ median(total_steps_taken_per_day$x)
 
 ### Time Series Plot
 
-```{r}
+
+```r
 # Mean of steps across all days per interval
 mean_steps_per_interval <- aggregate(steps ~ interval,cleandata,mean)
 
 plot(mean_steps_per_interval$interval,mean_steps_per_interval$steps,type = "l",main = "average number of steps per interval",xlab = "Time interval",ylab = "average number of steps across all days")
 ```
 
+![](PA1_template_files/figure-html/unnamed-chunk-7-1.png)<!-- -->
+
 ### Interval with highest average number of steps
 
-```{r}
+
+```r
 index <- which.max(mean_steps_per_interval$steps)
 
 print(paste("Interval with the highest average number of steps =",mean_steps_per_interval[index,]$interval))
+```
+
+```
+## [1] "Interval with the highest average number of steps = 835"
+```
+
+```r
 print(paste("Number of steps for the interval with the highest avg. number of steps =",mean_steps_per_interval[index,]$steps))
+```
+
+```
+## [1] "Number of steps for the interval with the highest avg. number of steps = 206.169811320755"
 ```
 
 ## Imputing missing values
@@ -86,10 +112,15 @@ print(paste("Number of steps for the interval with the highest avg. number of st
 
 ### The number of rows having missing values for steps
 
-```{r}
+
+```r
 # Number of rows with missing values
 missing_rows <- rawdata[!complete.cases(rawdata),]
 nrow(missing_rows)
+```
+
+```
+## [1] 2304
 ```
 
 ### Completing the data for NA values
@@ -98,7 +129,8 @@ We can use the following method to fill NA values: avg steps for the interval of
 
 we will create a complete dataset by the avg. number of steps per interval and compare it's mean and median to the dataset with the NA rows omitted.
 
-```{r}
+
+```r
 completedata <- rawdata
 
 for(i in 1:nrow(rawdata)){
@@ -110,23 +142,36 @@ for(i in 1:nrow(rawdata)){
 
 ### Histogram of total number of steps per day of the Completed Data
 
-```{r}
+
+```r
 # Total number of steps taken per day.
 new_total_steps_taken_per_day <- aggregate(completedata$steps,list(completedata$newdate),sum)
 
 hist(new_total_steps_taken_per_day$x,main = "Histogram for total number of steps taken per day",xlab = "total number of steps per day")
 ```
 
+![](PA1_template_files/figure-html/unnamed-chunk-11-1.png)<!-- -->
+
 ### Mean of Total steps taken per day for completed data
 
-```{r}
+
+```r
 round(mean(new_total_steps_taken_per_day$x))
+```
+
+```
+## [1] 10766
 ```
 
 ### Median of Total steps taken per day for completed data
 
-```{r}
+
+```r
 median(new_total_steps_taken_per_day$x)
+```
+
+```
+## [1] 10766.19
 ```
 
 The values of the Mean and the Median for the Complete Dataset are similar when Compared to that of the Dataset with the NA rows omitted.
@@ -138,7 +183,8 @@ The values of the Mean and the Median for the Complete Dataset are similar when 
 
 ### Creating a new factor variable to determine weekday or weekend
 
-```{r}
+
+```r
 # Create a function to deteremine weekday or weekend day
 weekday_or_weekend <- function(x){
   day <- weekdays(as.Date(x))
@@ -153,7 +199,8 @@ completedata$type_of_day <- as.factor(sapply(completedata$date, weekday_or_weeke
 
 ### Panel plot between Weekday and Weekend Day
 
-```{r}
+
+```r
 # Aggregate steps by the interval and type of day
 mean_steps <- aggregate(steps ~ interval + type_of_day,completedata,mean)
 
@@ -167,5 +214,7 @@ pplot <- pplot + ggtitle("Avg. No. of Steps per Interval by type of day")
 
 print(pplot)
 ```
+
+![](PA1_template_files/figure-html/unnamed-chunk-15-1.png)<!-- -->
 
 As we can see there is a spike in the number of steps taken during the early intervals of weekdays as compared to weekends. We can conclude that the person is more active during the morning intervals of weekdays as when compared to that of weekends. Morever, the average number of steps taken is distributed over a period of intervals for weekends whereas for weekdays, the average number of steps taken is more concentrated at a particular interval and not distributed as evenly as that of weekends.
